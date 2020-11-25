@@ -18,6 +18,8 @@ namespace API_Article.Models
 
         public string SourceName { get; set; }
 
+        public string SourceInformation { get; set; }
+
         public DateTime Date { get; set; } = DateTime.Now;
 
     }

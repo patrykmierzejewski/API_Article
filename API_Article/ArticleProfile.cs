@@ -20,7 +20,11 @@ namespace API_Article
             CreateMap<ArticleDTO, Article>()
                 .ForMember(x => x.Name, map => map.MapFrom(x => x.Name))
                 .ForMember(x => x.TextArticle, map => map.MapFrom(x => x.TextArticle))
-                .ForMember(x => x.Source, input => input.MapFrom(i => new Source { SourceName = i.SourceName }));
+                .ForMember(x => x.Source, map => map.MapFrom(i => new Source
+                {
+                    SourceName = i.SourceName,
+                    Information = i.SourceInformation
+                }));
         }
 
     }
