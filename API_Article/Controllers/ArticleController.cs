@@ -6,6 +6,7 @@ using API_Article.Entities;
 using API_Article.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API_Article.Controllers
 {
@@ -24,9 +25,10 @@ namespace API_Article.Controllers
         [HttpGet]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
-            var articles = _articleContext.Articles.ToList();
-            var info = _articleContext.Informations.ToList();
-            var sources = _articleContext.Sources.ToList();
+            var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .ToList();
 
             var articlesDtos = _mapper.Map<List<ArticleDetailsDTO>>(articles);
 
@@ -37,7 +39,11 @@ namespace API_Article.Controllers
         public ActionResult<ArticleDetailsDTO> Get(string name)
         {
             var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date)
                 .FirstOrDefault(m => m.Name.Replace(" ", "-").ToLower() == name.ToLower());
+                
 
             if (articles == null)
                 return NotFound();
@@ -46,13 +52,12 @@ namespace API_Article.Controllers
 
             return Ok(articlesDto);
         }
-        
 
         [HttpPost]
-        public ActionResult Post([FromBody]ArticleDTO model)
+        public ActionResult Post([FromBody] ArticleDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(model);
+                return BadRequest(ModelState);
 
             var article = _mapper.Map<Article>(model);
 
@@ -61,8 +66,96 @@ namespace API_Article.Controllers
 
             var key = article.Name.Replace(" ", "-").ToLower();
 
-            return Created($"api/article/{key}" , null);
+            return Created($"api/article/{key}", null);
         }
+
+        [HttpPut("{name}")]
+        public ActionResult Put(string name, [FromBody] ArticleDTO articleDTO)
+        {
+            var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date)
+                .FirstOrDefault(m => m.Name.Replace(" ", "-").ToLower() == name.ToLower());
+
+            if (articles == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            articles.Name = articleDTO.Name;
+            articles.Source.SourceName = articleDTO.SourceInformation;
+            articles.TextArticle = articleDTO.TextArticle;
+            articles.Date = articleDTO.Date;
+
+            _articleContext.SaveChanges();
+
+            return NoContent();
+        }
+
+
+        #region DELETE Methods
+        [HttpDelete("{name}")]
+        public ActionResult Delete(string name)
+        {
+            var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date) //najstarsze
+                .FirstOrDefault(m => m.Name.Replace(" ", "-").ToLower() == name.ToLower());
+
+            if (articles == null)
+                return NotFound();
+
+            _articleContext.RemoveRange(articles);
+            _articleContext.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpDelete("DeleteById/{Id}")]
+        public ActionResult DeleteById(int id)
+        {
+            var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date) //najstarsze
+                .FirstOrDefault(m => m.Id == id);
+
+            if (articles == null)
+                return NotFound();
+
+            _articleContext.RemoveRange(articles);
+            _articleContext.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpDelete("DeleteBySplitId/{ids}")]
+        public ActionResult DeleteBySplitId(string ids)
+        {
+            string[] idsString = ids.Split(",").ToArray();
+            List<int> idsList = new List<int>();
+
+            foreach (string v in idsString)
+                idsList.Add(int.Parse(v));
+
+            IEnumerable<Article> articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date) //najstarsze
+                .Where(m => idsList.Contains(m.Id)).ToList();
+
+            if (articles == null)
+                return NotFound();
+
+            _articleContext.RemoveRange(articles);
+            _articleContext.SaveChanges();
+
+            return NoContent();
+        }
+        #endregion
 
     }
 }
