@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Helpers;
 using API_Article.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace API_Article.Controllers
             _mapper = mapper;
         }
 
+        #region GET Methods
         [HttpGet]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
@@ -53,6 +55,9 @@ namespace API_Article.Controllers
             return Ok(articlesDto);
         }
 
+        #endregion
+
+        #region POST Methods
         [HttpPost]
         public ActionResult Post([FromBody] ArticleDTO model)
         {
@@ -68,7 +73,9 @@ namespace API_Article.Controllers
 
             return Created($"api/article/{key}", null);
         }
+        #endregion
 
+        #region PUT Methods
         [HttpPut("{name}")]
         public ActionResult Put(string name, [FromBody] ArticleDTO articleDTO)
         {
@@ -93,7 +100,7 @@ namespace API_Article.Controllers
 
             return NoContent();
         }
-
+        #endregion
 
         #region DELETE Methods
         [HttpDelete("{name}")]
@@ -108,7 +115,7 @@ namespace API_Article.Controllers
             if (articles == null)
                 return NotFound();
 
-            _articleContext.RemoveRange(articles);
+            _articleContext.Remove(articles);
             _articleContext.SaveChanges();
 
             return NoContent();
@@ -126,26 +133,22 @@ namespace API_Article.Controllers
             if (articles == null)
                 return NotFound();
 
-            _articleContext.RemoveRange(articles);
+            _articleContext.Remove(articles);
             _articleContext.SaveChanges();
 
             return NoContent();
         }
 
-        [HttpDelete("DeleteBySplitId/{ids}")]
-        public ActionResult DeleteBySplitId(string ids)
+        [HttpDelete("DeleteBySplitId/{splitName}")]
+        public ActionResult DeleteBySplitId(string splitName)
         {
-            string[] idsString = ids.Split(",").ToArray();
-            List<int> idsList = new List<int>();
-
-            foreach (string v in idsString)
-                idsList.Add(int.Parse(v));
+            List<int> idsList = StaticHelpers.GetIdsBySplitName(splitName);
 
             IEnumerable<Article> articles = _articleContext.Articles
                 .Include(m => m.Source)
                 .Include(n => n.Informations)
                 .OrderBy(x => x.Date) //najstarsze
-                .Where(m => idsList.Contains(m.Id)).ToList();
+                .Where(m => idsList.Contains(m.Id));
 
             if (articles == null)
                 return NotFound();
