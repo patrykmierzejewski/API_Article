@@ -54,13 +54,13 @@ namespace API_Article
                         new Information
                         {
                             InformationName = "info 1",
-                            InformationPriority = "1"
+                            InformationPriority = 1
                         },
 
                         new Information
                         {
                             InformationName = "inf 2",
-                            InformationPriority = "2"
+                            InformationPriority = 2
                         }
                     }
                 },
@@ -82,13 +82,13 @@ namespace API_Article
                         new Information
                         {
                             InformationName = "infoAAXX 22",
-                            InformationPriority = "2"
+                            InformationPriority = 2
                         },
 
                         new Information
                         {
                             InformationName = "infAAXXX 3",
-                            InformationPriority = "1"
+                            InformationPriority = 1
                         }
                     }
                 }

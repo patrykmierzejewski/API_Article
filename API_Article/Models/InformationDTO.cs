@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace API_Article.Entities
+namespace API_Article.Models
 {
-    public class Information
+    public class InformationDTO
     {
-        public int Id { get; set; }
         public string InformationName { get; set; }
         public int InformationPriority { get; set; }
-
-        public virtual Article Article { get; set; }
-        public int ArticleId { get; set; }
-
     }
 }

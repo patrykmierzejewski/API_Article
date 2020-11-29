@@ -35,11 +35,23 @@ namespace API_Article
             services.AddScoped<ArticleSeeder>();
 
             services.AddAutoMapper(this.GetType().Assembly);
+
+            //swagger documentation
+            services.AddSwaggerGen(x =>
+            {
+                x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Api Article", Version = "v1", Description = "private api" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ArticleSeeder articleSeeder)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI( x =>
+            {
+                x.SwaggerEndpoint("/swagger/v1/swagger.json", "Article API v1");
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

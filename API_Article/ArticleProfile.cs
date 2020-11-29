@@ -14,8 +14,7 @@ namespace API_Article
         {
             //GET
             CreateMap<Article, ArticleDetailsDTO>()
-                .ForMember(x => x.SourceName, map => map.MapFrom(a => a.Source.SourceName))
-                .ForMember(x => x.InformationsName, map => map.MapFrom(a => a.Informations.Select(x=>x.InformationName)));
+                .ForMember(x => x.SourceName, map => map.MapFrom(a => a.Source.SourceName));
 
             //POST*************************
             //jezeli nazwy się pokrywają, nie potrzeba tworzyć mapy
@@ -26,8 +25,12 @@ namespace API_Article
                     Information = i.SourceInformation
                 }));
 
-            CreateMap<ArticleDTO, Information>();
+            //zmienne pokrywają się nazwami
+            //CreateMap<ArticleDTO, Information>();
+
             //****************************
+            CreateMap<InformationDTO, Information>()
+                .ReverseMap() ;
         }
     }
 
