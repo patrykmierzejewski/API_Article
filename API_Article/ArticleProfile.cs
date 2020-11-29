@@ -25,6 +25,7 @@ namespace API_Article
                     SourceName = i.SourceName,
                     Information = i.SourceInformation
                 }));
+
             CreateMap<ArticleDTO, Information>();
             //****************************
         }

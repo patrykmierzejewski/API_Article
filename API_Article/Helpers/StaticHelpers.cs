@@ -19,6 +19,7 @@ namespace API_Article.Helpers
                 }
                 catch
                 {
+                    //IF value is string - only int value accepted
                     continue;
                 }
             }
