@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 namespace API_Article.Controllers
 {
     [Route("api/account")]
-    [TimeTrackFilter]
+    [ServiceFilter(typeof(TimeTrackFilter))]
     public class AccountController : ControllerBase
     {
         private readonly ArticleContext _articleContext;

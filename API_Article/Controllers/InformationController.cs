@@ -15,7 +15,7 @@ namespace API_Article.Controllers
 {
     [Authorize(Policy = "HasActive")]
     [Route("api/article/{Name}/information")]
-    [TimeTrackFilter]
+    [ServiceFilter(typeof(TimeTrackFilter))]
     public class InformationController : ControllerBase
     {
         private readonly ArticleContext _articleContext;

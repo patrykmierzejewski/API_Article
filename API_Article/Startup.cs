@@ -42,6 +42,7 @@ namespace API_Article
             SetAuthenticationJwt(services); // tokeny autoryzacji
             SetAuthorization(services); // autentykacja uzytkownika
 
+            services.AddScoped<TimeTrackFilter>();//czas wykonywania wywo³ywany przez Atrybut servicesFilter
             services.AddScoped<IJwtPrivider, JwtPrivider>();
             //validate emial and IPasswordHasher
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

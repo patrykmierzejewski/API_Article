@@ -17,7 +17,7 @@ namespace API_Article.Controllers
 {
     [Route("api/article")]
     [Authorize(Policy = "HasActive")]
-    [TimeTrackFilter]
+    [ServiceFilter(typeof(TimeTrackFilter))]
     public class ArticleController : ControllerBase
     {
         private readonly ArticleContext _articleContext;
@@ -31,11 +31,9 @@ namespace API_Article.Controllers
 
         #region GET Methods
         [HttpGet]
+        [CountryFilter("PL,DE")]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
-            var a = HttpContext.User.Identity.Name;
-            var b = HttpContext.User.Identities.Select(x=> x.Claims);
-
             var articles = _articleContext.Articles
                 .Include(m => m.Source)
                 .Include(n => n.Informations)
