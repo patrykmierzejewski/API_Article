@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace API_Article.Models
 {
+    /// <summary>
+    /// Register user - (Validators/RegistersUserValidator) validator include required rule
+    /// </summary>
     public class RegisterUserDTO
     {
         public string Email { get; set; }

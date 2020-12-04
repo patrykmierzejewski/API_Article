@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Identity;
 using API_Article.Models;
 using API_Article.Validators;
 using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -18,6 +21,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API_Article
 {
@@ -33,12 +38,15 @@ namespace API_Article
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //validate emial and password
+            SetAuthenticationJwt(services);
+
+            services.AddScoped<IJwtPrivider, JwtPrivider>();
+            //validate emial and IPasswordHasher
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddControllers().AddFluentValidation();
+
             services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserValidator>();
             //**********************
-
             services.AddDbContext<ArticleContext>();
 
             services.AddScoped<ArticleSeeder>();
@@ -50,10 +58,6 @@ namespace API_Article
             {
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Api Article", Version = "v1", Description = "private api" });
             });
-
-            //hash of password
-            
-          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,7 +71,6 @@ namespace API_Article
             });
             //******************
 
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -78,11 +81,12 @@ namespace API_Article
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
+            //app.UseCors();
+            
+            app.UseAuthentication();
             app.UseAuthorization();
-
+           
             //domyœlne zwracanie 
             //app.Use(async (context, next) => { await context.Response.WriteAsync("Hello from 2nd delegate."); });
 
@@ -93,6 +97,30 @@ namespace API_Article
 
             /*dodanie danych testowych*/
             articleSeeder.Seed();
+        }
+
+        private void SetAuthenticationJwt(IServiceCollection services)
+        {
+            System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            //IdentityModelEventSource.ShowPII = true;
+            JwtOptions jwtOptions = new JwtOptions();
+            Configuration.GetSection("jwt").Bind(jwtOptions);
+            services.AddSingleton(jwtOptions);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(conf =>
+                {
+                    conf.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidIssuer = jwtOptions.JwtIssuer,
+                        ValidAudience = jwtOptions.JwtIssuer,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.JwtKey)), // podpis wydawcy
+
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = false,
+                        RequireSignedTokens = true
+                    };
+                });
         }
     }
 }

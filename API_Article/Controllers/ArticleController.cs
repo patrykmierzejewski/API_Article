@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using API_Article.Entities;
 using API_Article.Helpers;
+using API_Article.Identity;
 using API_Article.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,8 +27,12 @@ namespace API_Article.Controllers
 
         #region GET Methods
         [HttpGet]
+        [Authorize]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
+            var a = HttpContext.User.Identity.Name;
+            var b = HttpContext.User.Identities.Select(x=> x.Claims);
+
             var articles = _articleContext.Articles
                 .Include(m => m.Source)
                 .Include(n => n.Informations)
