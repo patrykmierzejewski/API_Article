@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace API_Article.Controllers
 {
     [Route("api/article")]
+    [Authorize(Policy = "HasActive")]
     public class ArticleController : ControllerBase
     {
         private readonly ArticleContext _articleContext;
@@ -27,7 +28,6 @@ namespace API_Article.Controllers
 
         #region GET Methods
         [HttpGet]
-        [Authorize]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
             var a = HttpContext.User.Identity.Name;
@@ -44,6 +44,7 @@ namespace API_Article.Controllers
         }
 
         [HttpGet("{name}")]
+        [Authorize(Policy = "HasCountry")] // własna autrozyzacja
         public ActionResult<ArticleDetailsDTO> Get(string name)
         {
             var articles = _articleContext.Articles
@@ -65,6 +66,7 @@ namespace API_Article.Controllers
 
         #region POST Methods
         [HttpPost]
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult Post([FromBody] ArticleDTO model)
         {
             if (!ModelState.IsValid)
@@ -83,6 +85,7 @@ namespace API_Article.Controllers
 
         #region PUT Methods
         [HttpPut("{name}")]
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult Put(string name, [FromBody] ArticleDTO articleDTO)
         {
             var articles = _articleContext.Articles
@@ -110,6 +113,7 @@ namespace API_Article.Controllers
 
         #region DELETE Methods
         [HttpDelete("{name}")]
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult Delete(string name)
         {
             var articles = _articleContext.Articles

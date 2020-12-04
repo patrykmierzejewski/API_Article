@@ -31,6 +31,9 @@ namespace API_Article
             //****************************
             CreateMap<InformationDTO, Information>()
                 .ReverseMap() ;
+
+            CreateMap<UserDTO, User>()
+                .ReverseMap();
         }
     }
 

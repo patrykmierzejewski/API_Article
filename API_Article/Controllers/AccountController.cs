@@ -6,6 +6,7 @@ using API_Article.Entities;
 using API_Article.Identity;
 using API_Article.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,13 +34,14 @@ namespace API_Article.Controllers
         public IActionResult Register([FromBody] RegisterUserDTO registerUserDTO)
         {
             if (!ModelState.IsValid)
-               return BadRequest(ModelState);
+                return BadRequest(ModelState);
 
             User newUser = new User()
             {
                 Email = registerUserDTO.Email,
                 Country = registerUserDTO.Country,
                 DateOfBirth = registerUserDTO.DateOfBirth.HasValue ? registerUserDTO.DateOfBirth : DateTime.Now,
+                isActive = "active",
                 RoleId = registerUserDTO.RoleId
             };
 
@@ -65,7 +67,7 @@ namespace API_Article.Controllers
                 return BadRequest("Invalid user name or password");
 
             var passwordVerificateResoult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLoginDTO.Password);
-      
+
             if (passwordVerificateResoult == PasswordVerificationResult.Failed)
                 return BadRequest("Invalid user name or password");
 
@@ -73,6 +75,51 @@ namespace API_Article.Controllers
             var a = _jwtPrivider.GetClaims();
 
             return Ok(token);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Update([FromBody] UserDTO userDTO)
+        {
+            var user = _articleContext.Users
+                .Include(x => x.Role).FirstOrDefault();
+
+            if (user == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            user.isActive = userDTO.isActive;
+            user.FirstName = user.FirstName;
+            user.LastName = user.LastName;
+            user.Country = userDTO.Country;
+            user.DateOfBirth = userDTO.DateOfBirth;
+
+            _articleContext.SaveChanges();
+
+            return NoContent();
+        }
+
+        [HttpPut]
+        [Route("DeactiveUser/{email}")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult DeactiveUser(string email)
+        {
+            var user = _articleContext.Users
+                .FirstOrDefault(x => x.Email == email);
+
+            if (user == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            user.isActive = "deactive";
+
+            _articleContext.SaveChanges();
+
+            return NoContent();
         }
     }
 }

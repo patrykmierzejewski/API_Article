@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using API_Article.Entities;
 using API_Article.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace API_Article.Controllers
 {
+    [Authorize(Policy = "HasActive")]
     [Route("api/article/{Name}/information")]
     public class InformationController : ControllerBase
     {
@@ -45,6 +47,7 @@ namespace API_Article.Controllers
 
         #region POST
         [HttpPost]
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult POST(string name, [FromBody]InformationDTO informationDTO)
         {
             if (!ModelState.IsValid)
@@ -68,6 +71,8 @@ namespace API_Article.Controllers
         #endregion
 
         #region Delete
+        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize()]
         [HttpDelete("{id}")]
         public ActionResult DeleteById(string name, int id)
         {
@@ -92,6 +97,7 @@ namespace API_Article.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "Admin,Moderator")]
         public ActionResult DeleteAll(string name)
         {
             Article articles = _articleContext.Articles

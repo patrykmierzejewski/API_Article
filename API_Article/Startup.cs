@@ -38,7 +38,8 @@ namespace API_Article
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            SetAuthenticationJwt(services);
+            SetAuthenticationJwt(services); // tokeny autoryzacji
+            SetAuthorization(services); // autentykacja uzytkownika
 
             services.AddScoped<IJwtPrivider, JwtPrivider>();
             //validate emial and IPasswordHasher
@@ -57,6 +58,15 @@ namespace API_Article
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Api Article", Version = "v1", Description = "private api" });
+            });
+        }
+
+        private void SetAuthorization(IServiceCollection services)
+        {
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("HasCountry", builder => builder.RequireClaim("Country"));
+                options.AddPolicy("HasActive", builder => builder.RequireClaim("isActive", "active"));
             });
         }
 
