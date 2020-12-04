@@ -17,6 +17,9 @@ namespace API_Article.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Article>()
+                .HasOne(u => u.User);
+
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Filters;
 using API_Article.Identity;
 using API_Article.Models;
 using AutoMapper;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 namespace API_Article.Controllers
 {
     [Route("api/account")]
+    [TimeTrackFilter]
     public class AccountController : ControllerBase
     {
         private readonly ArticleContext _articleContext;

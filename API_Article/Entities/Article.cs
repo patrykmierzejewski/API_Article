@@ -14,5 +14,8 @@ namespace API_Article.Entities
 
         public virtual Source Source { get; set; }
         public virtual List<Information> Informations { get; set; }
+        
+        public virtual User User { get; set; }
+        public int? CreatedByUserId { get; set; }
     }
 }

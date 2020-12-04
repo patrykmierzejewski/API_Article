@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Filters;
 using API_Article.Helpers;
 using API_Article.Identity;
 using API_Article.Models;
@@ -15,6 +17,7 @@ namespace API_Article.Controllers
 {
     [Route("api/article")]
     [Authorize(Policy = "HasActive")]
+    [TimeTrackFilter]
     public class ArticleController : ControllerBase
     {
         private readonly ArticleContext _articleContext;
@@ -53,7 +56,6 @@ namespace API_Article.Controllers
                 .OrderBy(x => x.Date)
                 .FirstOrDefault(m => m.Name.Replace(" ", "-").ToLower() == name.ToLower());
                 
-
             if (articles == null)
                 return NotFound();
 
@@ -73,6 +75,9 @@ namespace API_Article.Controllers
                 return BadRequest(ModelState);
 
             var article = _mapper.Map<Article>(model);
+            var userId = User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+            article.CreatedByUserId = int.Parse(userId);
 
             _articleContext.Articles.Add(article);
             _articleContext.SaveChanges();

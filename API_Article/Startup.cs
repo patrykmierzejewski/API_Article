@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Filters;
 using API_Article.Identity;
 using API_Article.Models;
 using API_Article.Validators;
@@ -44,7 +45,9 @@ namespace API_Article
             services.AddScoped<IJwtPrivider, JwtPrivider>();
             //validate emial and IPasswordHasher
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-            services.AddControllers().AddFluentValidation();
+
+            //kontrolery z obs³ug¹ ³apania wyj¹tków oraz walidacja z fluentValidation
+            services.AddControllers(options => options.Filters.Add(typeof(ExceptionFilter))).AddFluentValidation();
 
             services.AddScoped<IValidator<RegisterUserDTO>, RegisterUserValidator>();
             //**********************

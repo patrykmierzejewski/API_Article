@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API_Article.Entities;
+using API_Article.Filters;
 using API_Article.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +15,7 @@ namespace API_Article.Controllers
 {
     [Authorize(Policy = "HasActive")]
     [Route("api/article/{Name}/information")]
+    [TimeTrackFilter]
     public class InformationController : ControllerBase
     {
         private readonly ArticleContext _articleContext;

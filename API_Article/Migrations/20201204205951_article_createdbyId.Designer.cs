@@ -4,14 +4,16 @@ using API_Article.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace API_Article.Migrations
 {
     [DbContext(typeof(ArticleContext))]
-    partial class ArticleContextModelSnapshot : ModelSnapshot
+    [Migration("20201204205951_article_createdbyId")]
+    partial class article_createdbyId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,9 @@ namespace API_Article.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("int");
+
                     b.Property<int?>("CreatedByUserId")
                         .HasColumnType("int");
 
@@ -38,12 +43,9 @@ namespace API_Article.Migrations
                     b.Property<string>("TextArticle")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CreatedById");
 
                     b.ToTable("Articles");
                 });
@@ -150,11 +152,11 @@ namespace API_Article.Migrations
 
             modelBuilder.Entity("API_Article.Entities.Article", b =>
                 {
-                    b.HasOne("API_Article.Entities.User", "User")
+                    b.HasOne("API_Article.Entities.User", "CreatedBy")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("CreatedById");
 
-                    b.Navigation("User");
+                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("API_Article.Entities.Information", b =>
