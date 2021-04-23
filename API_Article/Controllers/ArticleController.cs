@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 namespace API_Article.Controllers
 {
     [Route("api/article")]
-    [Authorize(Policy = "HasActive")]
     [ServiceFilter(typeof(TimeTrackFilter))]
     public class ArticleController : ControllerBase
     {
@@ -31,7 +30,6 @@ namespace API_Article.Controllers
 
         #region GET Methods
         [HttpGet]
-        [CountryFilter("PL,DE")]
         public ActionResult<List<ArticleDetailsDTO>> Get()
         {
             var articles = _articleContext.Articles
@@ -45,7 +43,7 @@ namespace API_Article.Controllers
         }
 
         [HttpGet("{name}")]
-        [Authorize(Policy = "HasCountry")] // własna autrozyzacja
+        //[Authorize(Policy = "HasCountry")] // własna autrozyzacja
         public ActionResult<ArticleDetailsDTO> Get(string name)
         {
             var articles = _articleContext.Articles
@@ -62,6 +60,23 @@ namespace API_Article.Controllers
             return Ok(articlesDto);
         }
 
+        [HttpGet("GetById/{id}")]
+        //[Authorize(Policy = "HasCountry")] // własna autrozyzacja
+        public ActionResult<ArticleDetailsDTO> Get(int id)
+        {
+            var articles = _articleContext.Articles
+                .Include(m => m.Source)
+                .Include(n => n.Informations)
+                .OrderBy(x => x.Date)
+                .FirstOrDefault(m => m.Id == id);
+
+            if (articles == null)
+                return NotFound();
+
+            var articlesDto = _mapper.Map<ArticleDetailsDTO>(articles);
+
+            return Ok(articlesDto);
+        }
         #endregion
 
         #region POST Methods

@@ -19,8 +19,8 @@ namespace API_Article.Validators
         {
             //email
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
-            RuleFor(x => x.PasswordHash).MinimumLength(6);
-            RuleFor(x => x.PasswordHash).Equal(x => x.ConfirmPassword);
+            RuleFor(x => x.PasswordHash).MinimumLength(6).NotEmpty();
+            RuleFor(x => x.PasswordHash).Equal(x => x.ConfirmPassword).NotEmpty();
 
             RuleFor(x => x.Email).Custom((value, context) =>
             {

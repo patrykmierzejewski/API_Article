@@ -63,20 +63,22 @@ namespace API_Article
             {
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "Api Article", Version = "v1", Description = "private api" });
             });
-        }
 
-        private void SetAuthorization(IServiceCollection services)
-        {
-            services.AddAuthorizationCore(options =>
+            //dodanie mo¿liwoœci po³¹czeñ przez https
+            services.AddCors(options =>
             {
-                options.AddPolicy("HasCountry", builder => builder.RequireClaim("Country"));
-                options.AddPolicy("HasActive", builder => builder.RequireClaim("isActive", "active"));
+                options.AddPolicy("FrontendClient", builder => builder
+                                                                    .AllowAnyHeader()
+                                                                    .AllowAnyMethod()
+                                                                    .WithOrigins("http://localhost:3000"));
             });
         }
 
+       
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ArticleSeeder articleSeeder)
         {
+            app.UseCors("FrontendClient");
             // dodanie swagera UI 
             app.UseSwagger();
             app.UseSwaggerUI( x =>
@@ -96,7 +98,7 @@ namespace API_Article
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            //app.UseCors();
+            
             
             app.UseAuthentication();
             app.UseAuthorization();
@@ -136,5 +138,14 @@ namespace API_Article
                     };
                 });
         }
+        private void SetAuthorization(IServiceCollection services)
+        {
+            services.AddAuthorizationCore(options =>
+            {
+                options.AddPolicy("HasCountry", builder => builder.RequireClaim("Country"));
+                options.AddPolicy("HasActive", builder => builder.RequireClaim("isActive", "active"));
+            });
+        }
+
     }
 }
